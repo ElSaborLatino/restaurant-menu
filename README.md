@@ -1,6 +1,6 @@
 # 🍷 Sabor - Digital Web Menu
 
-A high-performance, responsive digital menu designed for **Sabor** restaurant, supporting multi-language navigation and mobile-first browsing.
+A responsive digital menu for **Sabor** restaurant, with English, Turkish and Portuguese navigation and mobile-first browsing. The menu content lives in a Google Sheet that the restaurant owner edits; this repository is the public web page that displays it.
 
 ## 🌐 Live Menu & QR Code
 
@@ -13,15 +13,60 @@ A high-performance, responsive digital menu designed for **Sabor** restaurant, s
 
 ---
 
-## 🛠️ Overview
+## ✏️ Editing the menu (for the owner)
 
-* **Frontend:** Clean single-file layout (`index.html`) using vanilla JavaScript, HTML5, and modern CSS.
-* **Languages Supported:** English, Turkish, Portuguese, and Greek.
-* **Data & Operations:** The codebase handles UI layout, dynamic rendering, and multi-language logic. Menu items, prices, and category details are managed externally and securely by the business owner.
-* **Hosting:** Hosted via GitHub Pages under the official organization domain.
+Edit the Google Sheet. Changes appear on the live menu within about 5 minutes, with no code changes and no need to publish again. (Google keeps a copy for up to 5 minutes.)
+
+| Tab | What it holds |
+|---|---|
+| `Menu` | One row per item: `number`, `category_id`, `name`, `price_try`, `available` |
+| `Categories` | One row per category: `category_id` plus a title in each language. Row order is the order of the category buttons. |
+| `en`, `tr`, `pt` | The description of each item in that language, matched to `Menu` by `number` |
+
+**Common tasks**
+
+* **Change a price or name:** edit it in `Menu`. Prices are numbers only, with no `₺`.
+* **Hide an item without deleting it:** untick `available`.
+* **Add an item:** add a row in `Menu` with a new, unused `number` and a category from the dropdown. Then add a row with the same `number` and a description in each of `en`, `tr` and `pt`. Row order in `Menu` is the display order within a category.
+* **Add a category:** add a row in `Categories` first, then it appears in the `category_id` dropdown.
+
+**Rules**
+
+* Every `number` must be unique. A number also links the item to its translations, so do not change the number of a live item. If you do, change it in `Menu`, `en`, `tr` and `pt` together.
+* Rows highlighted red are incomplete or duplicated. Fix them or they may not appear.
+* A missing translation falls back to English. An item with a missing or invalid price, number or category is skipped.
+* Do not delete the checkbox cells in the `available` column.
 
 ---
 
-## 🔒 Maintenance & Updates
+## 🛠️ How it works (for developers)
 
-This repository serves strictly as the public web interface. Updates to menu items, localized descriptions, and pricing are maintained externally by the business owner and reflected on the live site automatically without needing direct code edits.
+* **Frontend:** plain HTML, CSS and JavaScript (ES modules), with no build step.
+  * `index.html` and `style.css`: the page and its styles.
+  * `app.js`: fetches the Sheet, caches it and renders the page.
+  * `menu.js`: turns the published CSV into a menu and handles bad data.
+  * `config.js`: the Sheet id, the tab ids and the currency symbol. This is the only file to edit when switching to another Sheet.
+* **Data flow:**
+  1. The page shows the copy cached in the browser (if any) straight away.
+  2. It fetches the published Sheet and replaces the menu with the fresh version.
+  3. If that fails on a first visit, it falls back to `menu-snapshot.json`.
+* **Snapshot:** `.github/workflows/refresh-snapshot.yml` refreshes `menu-snapshot.json` daily from the Sheet.
+* **Languages:** English, Turkish and Portuguese. To add one, add a tab with `number` and `description` columns, a `title_xx` column in `Categories`, and the language in `config.js` and the dropdown in `index.html`.
+* **Currency:** prices are shown in Turkish lira (`₺`).
+* **Hosting:** GitHub Pages.
+
+### Using a different Sheet
+
+1. Make a copy of the Sheet. `sheet-template/` has the CSVs and an Apps Script that builds the tabs and validation rules.
+2. In the copy, go to **File → Share → Publish to web**, choose **Entire document** and **CSV**, and keep **Automatically republish when changes are made** ticked.
+3. Update `SHEET_ID` and the tab ids in `config.js`. The id is the long `2PACX-…` part of the published link. Each tab's id is the number after `#gid=` in the Sheet's address bar when that tab is open.
+
+### Running locally
+
+ES modules do not load from a plain file, so serve the folder:
+
+```
+python3 -m http.server 8123
+```
+
+Then open http://localhost:8123.
