@@ -57,7 +57,11 @@ Edit the Google Sheet. Changes appear on the live menu within about 5 minutes, w
 
 ### Using a different Sheet
 
-1. Make a copy of the Sheet. `sheet-template/` has the CSVs and an Apps Script that builds the tabs and validation rules.
+1. Make a copy of the Sheet (**File → Make a copy**). The copy should keep the tabs and the validation rules. If the rules are missing, re-add these data validation rules on the `Menu` tab, each set to reject invalid input:
+   * `A2:A1000` (number): custom formula `=AND(ISNUMBER(A2),A2=INT(A2),A2>0,COUNTIF($A$2:$A,A2)=1)`
+   * `B2:B1000` (category): dropdown from the range `Categories!A2:A`
+   * `D2:D1000` (price): number greater than or equal to 0
+   * `E2:E1000` (available): insert checkboxes
 2. In the copy, go to **File → Share → Publish to web**, choose **Entire document** and **CSV**, and keep **Automatically republish when changes are made** ticked.
 3. Update `SHEET_ID` and the tab ids in `config.js`. The id is the long `2PACX-…` part of the published link. Each tab's id is the number after `#gid=` in the Sheet's address bar when that tab is open.
 
