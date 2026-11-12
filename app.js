@@ -110,7 +110,7 @@ function draw() {
       const info = el('div', 'item-info');
       const name = item.names[state.lang] || item.name;
       info.append(el('div', 'item-title', SHOW_ITEM_NUMBERS ? `${item.number}. ${name}` : name));
-      const desc = t(item.descriptions);
+      const desc = item.descriptions[state.lang] ?? item.descriptions[DEFAULT_LANGUAGE] ?? '';
       if (desc) info.append(el('div', 'item-desc desc-text', desc));
 
       const row = el('div', 'menu-item');

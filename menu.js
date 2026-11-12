@@ -82,7 +82,8 @@ export function buildMenu(csv, languages, warn = () => {}) {
       name: r.name,
       price,
       names: Object.fromEntries(languages.map(l => [l, translations[l].get(r.number)?.name ?? ''])),
-      descriptions: Object.fromEntries(languages.map(l => [l, translations[l].get(r.number)?.description ?? ''])),
+      // '' = the tab has a row with an empty cell (show nothing); undefined = no row in that tab (fall back to English)
+      descriptions: Object.fromEntries(languages.map(l => [l, translations[l].get(r.number)?.description])),
     });
   }
   return [...byCategory.values()].filter(c => c.items.length);
