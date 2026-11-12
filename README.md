@@ -21,20 +21,20 @@ Edit the Google Sheet. Changes appear on the live menu within about 5 minutes, w
 |---|---|
 | `Menu` | One row per item: `number`, `category_id`, `name`, `price_try`, `available` |
 | `Categories` | One row per category: `category_id` plus a title in each language. Row order is the order of the category buttons. |
-| `en`, `tr`, `pt` | The description of each item in that language, matched to `Menu` by `number` |
+| `en`, `tr`, `pt` | Per language, matched to `Menu` by `number`: an optional translated `name` and a `description` |
 
 **Common tasks**
 
 * **Change a price or name:** edit it in `Menu`. Prices are numbers only, with no `₺`.
 * **Hide an item without deleting it:** untick `available`.
-* **Add an item:** add a row in `Menu` with a new, unused `number` and a category from the dropdown. Then add a row with the same `number` and a description in each of `en`, `tr` and `pt`. Row order in `Menu` is the display order within a category.
+* **Add an item:** add a row in `Menu` with a new, unused `number` and a category from the dropdown. Then add a row with the same `number` and a description in each of `en`, `tr` and `pt`. To translate the name too, fill in the `name` column in that language's tab. If it is empty, the name from `Menu` is used. Row order in `Menu` is the display order within a category.
 * **Add a category:** add a row in `Categories` first, then it appears in the `category_id` dropdown.
 
 **Rules**
 
 * Every `number` must be unique. A number also links the item to its translations, so do not change the number of a live item. If you do, change it in `Menu`, `en`, `tr` and `pt` together.
 * Rows highlighted red are incomplete or duplicated. Fix them or they may not appear.
-* A missing translation falls back to English. An item with a missing or invalid price, number or category is skipped.
+* A missing description shows nothing, and a missing translated name falls back to the `Menu` name. A missing translated category title falls back to English. An item with a missing or invalid price, number or category is skipped.
 * Do not delete the checkbox cells in the `available` column.
 
 ---

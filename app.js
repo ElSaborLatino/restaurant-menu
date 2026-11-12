@@ -108,7 +108,8 @@ function draw() {
     const content = el('div', 'category-content');
     for (const item of cat.items) {
       const info = el('div', 'item-info');
-      info.append(el('div', 'item-title', SHOW_ITEM_NUMBERS ? `${item.number}. ${item.name}` : item.name));
+      const name = item.names[state.lang] || item.name;
+      info.append(el('div', 'item-title', SHOW_ITEM_NUMBERS ? `${item.number}. ${name}` : name));
       const desc = t(item.descriptions);
       if (desc) info.append(el('div', 'item-desc desc-text', desc));
 
