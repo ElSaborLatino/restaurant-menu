@@ -41,16 +41,20 @@ const isEmptyItemRow = r => !r.number && !r.category_id && !r.name && !r.price_t
 
 /**
  * csv: { menu, categories, <lang>: text ... } (raw CSV text per tab)
- * Returns [{ id, titles: {lang: str}, items: [{ number, name, price, descriptions: {lang: str} }] }]
+ * Returns [{ id, titles: {lang: str}, items: [{ number, name, price, names: {lang: str}, descriptions: {lang: str} }] }]
+ * `name` is the Menu-tab name; names[lang] is an optional translation that overrides it.
  * Lenient: bad rows are skipped and reported through warn(), never thrown.
  */
 export function buildMenu(csv, languages, warn = () => {}) {
   const categories = toObjects(csv.categories).filter(c => c.category_id);
-  const descriptions = {};
+  // Per language: number -> { name, description }. Both are optional.
+  const translations = {};
   for (const lang of languages) {
-    descriptions[lang] = new Map();
+    translations[lang] = new Map();
     for (const r of toObjects(csv[lang] ?? '')) {
-      if (r.number && !descriptions[lang].has(r.number)) descriptions[lang].set(r.number, r.description);
+      if (r.number && !translations[lang].has(r.number)) {
+        translations[lang].set(r.number, { name: r.name ?? '', description: r.description ?? '' });
+      }
     }
   }
 
@@ -77,7 +81,8 @@ export function buildMenu(csv, languages, warn = () => {}) {
       number: r.number,
       name: r.name,
       price,
-      descriptions: Object.fromEntries(languages.map(l => [l, descriptions[l].get(r.number) ?? ''])),
+      names: Object.fromEntries(languages.map(l => [l, translations[l].get(r.number)?.name ?? ''])),
+      descriptions: Object.fromEntries(languages.map(l => [l, translations[l].get(r.number)?.description ?? ''])),
     });
   }
   return [...byCategory.values()].filter(c => c.items.length);

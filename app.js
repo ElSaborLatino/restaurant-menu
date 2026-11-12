@@ -1,5 +1,5 @@
 import {
-  TABS, LANGUAGES, DEFAULT_LANGUAGE, CURRENCY_SYMBOL, SNAPSHOT_URL, CACHE_KEY, tabUrl,
+  TABS, LANGUAGES, DEFAULT_LANGUAGE, CURRENCY_SYMBOL, SHOW_ITEM_NUMBERS, BANNER, SNAPSHOT_URL, CACHE_KEY, tabUrl,
 } from './config.js';
 import { buildMenu, pick } from './menu.js';
 
@@ -11,6 +11,7 @@ const state = { raw: null, menu: [], lang: DEFAULT_LANGUAGE, activeId: null };
 const pillsEl = document.getElementById('navPills');
 const mainEl = document.querySelector('main');
 const langSelect = document.getElementById('langSelect');
+const bannerEl = document.getElementById('banner');
 
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -82,8 +83,13 @@ async function load() {
 
 const t = map => pick(map, state.lang, DEFAULT_LANGUAGE);
 
+function drawBanner() {
+  if (bannerEl) bannerEl.textContent = BANNER ? pick(BANNER, state.lang, DEFAULT_LANGUAGE) : '';
+}
+
 function draw() {
   document.documentElement.lang = state.lang;
+  drawBanner();
 
   pillsEl.replaceChildren(...state.menu.map(cat => {
     const pill = el('button', 'pill' + (cat.id === state.activeId ? ' active' : ''));
@@ -102,7 +108,8 @@ function draw() {
     const content = el('div', 'category-content');
     for (const item of cat.items) {
       const info = el('div', 'item-info');
-      info.append(el('div', 'item-title', `${item.number}. ${item.name}`));
+      const name = item.names[state.lang] || item.name;
+      info.append(el('div', 'item-title', SHOW_ITEM_NUMBERS ? `${item.number}. ${name}` : name));
       const desc = t(item.descriptions);
       if (desc) info.append(el('div', 'item-desc desc-text', desc));
 
@@ -130,6 +137,7 @@ function scrollToCat(id) {
 langSelect.addEventListener('change', () => {
   state.lang = langSelect.value;
   if (state.menu.length) draw();
+  else drawBanner();
 });
 
 load();
