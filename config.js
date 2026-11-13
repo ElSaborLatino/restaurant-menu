@@ -14,7 +14,11 @@ export const TABS = {
 
 export const LANGUAGES = ['en', 'tr', 'pt'];
 export const DEFAULT_LANGUAGE = 'en';
-export const CURRENCY_SYMBOL = '₺';
+// Prices come from the Menu tab: price_try (required) and price_eur (optional).
+// The ₺ | € switch only appears when at least one item has a price_eur.
+export const CURRENCIES = { try: '₺', eur: '€' };
+export const DEFAULT_CURRENCY = 'try';
+export const CURRENCY_KEY = 'sabor-currency-v1';
 
 // Show the item number in front of each name ("30. SPAGHETTI BOLOGNESE")?
 export const SHOW_ITEM_NUMBERS = true;
