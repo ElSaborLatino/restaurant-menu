@@ -10,9 +10,15 @@
 
   <header>
     <div class="header-top">
-      <div style="width: 50px;"></div>
-      <h1 class="brand">sabor</h1>
-      <div>
+      <div class="brand-block">
+        <h1 class="brand">sabor</h1>
+        <div class="subtitle">Authentic Portuguese Spanish & Italian Cuisine</div>
+      </div>
+      <div class="header-controls">
+        <div class="currency-toggle" id="currencyToggle" role="group" aria-label="Currency" hidden>
+          <button type="button" data-currency="try">₺</button>
+          <button type="button" data-currency="eur">€</button>
+        </div>
         <select id="langSelect" class="lang-select">
           <option value="en">🇬🇧 EN</option>
           <option value="tr">🇹🇷 TR</option>
@@ -20,7 +26,6 @@
         </select>
       </div>
     </div>
-    <div class="subtitle">Authentic Portuguese Spanish & Italian Cuisine</div>
 
     <div class="nav-pills" id="navPills"></div>
   </header>

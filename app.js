@@ -1,17 +1,25 @@
 import {
-  TABS, LANGUAGES, DEFAULT_LANGUAGE, CURRENCY_SYMBOL, SHOW_ITEM_NUMBERS, BANNER, SNAPSHOT_URL, CACHE_KEY, tabUrl,
+  TABS, LANGUAGES, DEFAULT_LANGUAGE, CURRENCIES, DEFAULT_CURRENCY, CURRENCY_KEY, SHOW_ITEM_NUMBERS, BANNER, SNAPSHOT_URL, CACHE_KEY, tabUrl,
 } from './config.js';
 import { buildMenu, pick } from './menu.js';
 
 const FETCH_TIMEOUT_MS = 8000;
 const HEADER_OFFSET = 135;
 
-const state = { raw: null, menu: [], lang: DEFAULT_LANGUAGE, activeId: null };
+const readCurrency = () => {
+  try {
+    const saved = localStorage.getItem(CURRENCY_KEY);
+    return saved in CURRENCIES ? saved : DEFAULT_CURRENCY;
+  } catch { return DEFAULT_CURRENCY; }
+};
+
+const state = { raw: null, menu: [], lang: DEFAULT_LANGUAGE, currency: readCurrency(), activeId: null };
 
 const pillsEl = document.getElementById('navPills');
 const mainEl = document.querySelector('main');
 const langSelect = document.getElementById('langSelect');
 const bannerEl = document.getElementById('banner');
+const currencyEl = document.getElementById('currencyToggle');
 
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -87,9 +95,21 @@ function drawBanner() {
   if (bannerEl) bannerEl.textContent = BANNER ? pick(BANNER, state.lang, DEFAULT_LANGUAGE) : '';
 }
 
+// Shown in the chosen currency; an item with no euro price stays in lira so it is never blank.
+function priceText(item) {
+  if (state.currency === 'eur' && item.priceEur !== null) return `${CURRENCIES.eur}${item.priceEur.toFixed(2)}`;
+  return `${item.price}${CURRENCIES.try}`;
+}
+
+function drawCurrencyToggle() {
+  currencyEl.hidden = !state.menu.some(c => c.items.some(i => i.priceEur !== null));
+  currencyEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.currency === state.currency)));
+}
+
 function draw() {
   document.documentElement.lang = state.lang;
   drawBanner();
+  drawCurrencyToggle();
 
   pillsEl.replaceChildren(...state.menu.map(cat => {
     const pill = el('button', 'pill' + (cat.id === state.activeId ? ' active' : ''));
@@ -114,7 +134,7 @@ function draw() {
       if (desc) info.append(el('div', 'item-desc desc-text', desc));
 
       const row = el('div', 'menu-item');
-      row.append(info, el('div', 'price-tag', `${item.price}${CURRENCY_SYMBOL}`));
+      row.append(info, el('div', 'price-tag', priceText(item)));
       content.append(row);
     }
     section.append(title, content);
@@ -138,6 +158,14 @@ langSelect.addEventListener('change', () => {
   state.lang = langSelect.value;
   if (state.menu.length) draw();
   else drawBanner();
+});
+
+currencyEl.addEventListener('click', e => {
+  const currency = e.target.closest('button')?.dataset.currency;
+  if (!currency || currency === state.currency) return;
+  state.currency = currency;
+  try { localStorage.setItem(CURRENCY_KEY, currency); } catch { /* storage blocked */ }
+  draw();
 });
 
 load();

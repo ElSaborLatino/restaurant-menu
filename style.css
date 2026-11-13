@@ -41,6 +41,27 @@
     margin-top: -2px;
     margin-bottom: 6px;
   }
+  .brand-block { flex: 1; }
+  .header-controls { display: flex; align-items: center; gap: 6px; }
+  .currency-toggle {
+    display: inline-flex;
+    border: 1px solid #d6d3d1;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #ffffff;
+  }
+  .currency-toggle[hidden] { display: none; }
+  .currency-toggle button {
+    border: none;
+    background: transparent;
+    padding: 4px 9px;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    color: #1c1917;
+    cursor: pointer;
+  }
+  .currency-toggle button[aria-pressed="true"] { background: #1c1917; color: #ffffff; }
   .lang-select {
     background: #ffffff;
     border: 1px solid #d6d3d1;

@@ -41,7 +41,7 @@ const isEmptyItemRow = r => !r.number && !r.category_id && !r.name && !r.price_t
 
 /**
  * csv: { menu, categories, <lang>: text ... } (raw CSV text per tab)
- * Returns [{ id, titles: {lang: str}, items: [{ number, name, price, names: {lang: str}, descriptions: {lang: str} }] }]
+ * Returns [{ id, titles: {lang: str}, items: [{ number, name, price, priceEur (or null), names: {lang: str}, descriptions: {lang: str} }] }]
  * `name` is the Menu-tab name; names[lang] is an optional translation that overrides it.
  * Lenient: bad rows are skipped and reported through warn(), never thrown.
  */
@@ -75,12 +75,19 @@ export function buildMenu(csv, languages, warn = () => {}) {
     if (!r.name) { warn(`${where}: name missing, skipped`); continue; }
     const price = Number(r.price_try);
     if (r.price_try === '' || !Number.isFinite(price) || price < 0) { warn(`${where}: invalid price "${r.price_try}", hidden`); continue; }
+    // Optional euro price: blank is fine (the item just stays in lira), a bad value is reported and ignored.
+    let priceEur = null;
+    if (r.price_eur) {
+      priceEur = Number(r.price_eur);
+      if (!Number.isFinite(priceEur) || priceEur < 0) { warn(`${where}: invalid euro price "${r.price_eur}", ignored`); priceEur = null; }
+    }
     const category = byCategory.get(r.category_id);
     if (!category) { warn(`${where}: unknown category "${r.category_id}", skipped`); continue; }
     category.items.push({
       number: r.number,
       name: r.name,
       price,
+      priceEur,
       names: Object.fromEntries(languages.map(l => [l, translations[l].get(r.number)?.name ?? ''])),
       // '' = the tab has a row with an empty cell (show nothing); undefined = no row in that tab (fall back to English)
       descriptions: Object.fromEntries(languages.map(l => [l, translations[l].get(r.number)?.description])),
