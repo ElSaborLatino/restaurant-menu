@@ -21,7 +21,7 @@ export const DEFAULT_CURRENCY = 'try';
 export const CURRENCY_KEY = 'sabor-currency-v1';
 
 // Show the item number in front of each name ("30. SPAGHETTI BOLOGNESE")?
-export const SHOW_ITEM_NUMBERS = true;
+export const SHOW_ITEM_NUMBERS = false;
 
 // Notice shown at the bottom of the page, per language. Set to null for none.
 export const BANNER = {
