@@ -34,6 +34,9 @@ export const BANNER = {
 
 export const SNAPSHOT_URL = 'menu-snapshot.json';
 export const CACHE_KEY = 'sabor-menu-v1';
+// Stamp put on the stylesheet and script links; app.js renews it when this browser holds out-of-date files.
+// The same key is written out in index.html, which cannot import this file.
+export const STAMP_KEY = 'sabor-stamp-v1';
 
 export function tabUrl(tab) {
   return `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${TABS[tab]}&single=true&output=csv`;

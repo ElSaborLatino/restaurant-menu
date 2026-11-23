@@ -4,7 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sabor - Authentic Portuguese, Spanish & Italian Cuisine</title>
-  <link rel="stylesheet" href="style.css">
+  <script>
+    // The stylesheet and script links carry a stamp that app.js renews whenever it finds this browser holding
+    // out-of-date files (see "self-check" in app.js). A new stamp is a new address, so no saved copy can be reused.
+    // document.write keeps the stylesheet render-blocking, exactly like a plain <link>.
+    var stamp = '';
+    try { stamp = localStorage.getItem('sabor-stamp-v1') || ''; } catch (e) { /* storage blocked */ }
+    stamp = /^[a-z0-9]+$/.test(stamp) ? '?v=' + stamp : '';
+    document.write('<link rel="stylesheet" href="style.css' + stamp + '">');
+  </script>
+  <noscript><link rel="stylesheet" href="style.css"></noscript>
 </head>
 <body>
 
@@ -38,6 +47,11 @@
     <div class="allergy-banner" id="banner"></div>
   </footer>
 
-  <script type="module" src="app.js"></script>
+  <script>
+    var appScript = document.createElement('script');
+    appScript.type = 'module';
+    appScript.src = 'app.js' + stamp;
+    document.body.append(appScript);
+  </script>
 </body>
 </html>
