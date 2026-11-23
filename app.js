@@ -4,7 +4,7 @@ import {
 import { buildMenu, pick } from './menu.js';
 
 const FETCH_TIMEOUT_MS = 8000;
-const HEADER_OFFSET = 135;
+const HEADER_OFFSET = 165;
 
 const readCurrency = () => {
   if (!SHOW_CURRENCY_SWITCH) return DEFAULT_CURRENCY;
