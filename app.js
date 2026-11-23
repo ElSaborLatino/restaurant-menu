@@ -1,10 +1,14 @@
-import {
-  TABS, LANGUAGES, DEFAULT_LANGUAGE, CURRENCIES, DEFAULT_CURRENCY, CURRENCY_KEY, SHOW_CURRENCY_SWITCH, SHOW_ITEM_NUMBERS, BANNER, SNAPSHOT_URL, CACHE_KEY, tabUrl,
-} from './config.js';
-import { buildMenu, pick } from './menu.js';
+// This file's own stamp (see index.html) is passed on, so all three scripts always come from the same release.
+const stamp = new URL(import.meta.url).search;
+const {
+  TABS, LANGUAGES, DEFAULT_LANGUAGE, CURRENCIES, DEFAULT_CURRENCY, CURRENCY_KEY, SHOW_CURRENCY_SWITCH, SHOW_ITEM_NUMBERS, BANNER, SNAPSHOT_URL, CACHE_KEY, STAMP_KEY, tabUrl,
+} = await import(`./config.js${stamp}`);
+const { buildMenu, pick } = await import(`./menu.js${stamp}`);
 
 const FETCH_TIMEOUT_MS = 8000;
 const HEADER_OFFSET = 165;
+const SELF_CHECK_GAP_MS = 60_000;
+const SELF_RELOAD_GAP_MS = 120_000;
 
 const readCurrency = () => {
   if (!SHOW_CURRENCY_SWITCH) return DEFAULT_CURRENCY;
@@ -170,3 +174,38 @@ currencyEl.addEventListener('click', e => {
 });
 
 load();
+
+// ---- self-check: reload once when this browser is showing an out-of-date copy of the site ----
+// The host lets browsers reuse the page, stylesheet and scripts for 10 minutes, each on its own clock, and a
+// phone brings an old tab back without asking the server at all. So: compare the files this page was built
+// from with what the server has now, and if any differ, renew the stamp (new addresses) and reload.
+
+const SITE_FILES = [location.pathname + location.search, ...['style.css', 'app.js', 'config.js', 'menu.js'].map(f => f + stamp)];
+const fileTags = options => Promise.all(SITE_FILES.map(async file => {
+  const res = await fetch(file, options);
+  res.body?.cancel();
+  return res.headers.get('etag') || res.headers.get('last-modified') || '';
+}));
+
+let runningTags = null;
+let lastSelfCheck = 0;
+
+async function selfCheck() {
+  if (Date.now() - lastSelfCheck < SELF_CHECK_GAP_MS) return;
+  lastSelfCheck = Date.now();
+  try {
+    // force-cache = the saved copies this page was just built from, without asking the server.
+    runningTags ??= await fileTags({ cache: 'force-cache' });
+    const liveTags = await fileTags({ method: 'HEAD', cache: 'no-store' });
+    if ([...runningTags, ...liveTags].includes('')) return;
+    if (liveTags.every((tag, i) => tag === runningTags[i])) return;
+    const lastReload = parseInt(localStorage.getItem(STAMP_KEY), 36) || 0;
+    if (Date.now() - lastReload < SELF_RELOAD_GAP_MS) return;
+    localStorage.setItem(STAMP_KEY, Date.now().toString(36));
+    location.reload();
+  } catch { /* offline or storage blocked: keep showing what we have */ }
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') selfCheck(); });
+window.addEventListener('pageshow', e => { if (e.persisted) selfCheck(); });
+selfCheck();
