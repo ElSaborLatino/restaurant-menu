@@ -19,7 +19,7 @@
   }
   .header-top {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
   }
   h1.brand {
