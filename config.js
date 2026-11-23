@@ -18,6 +18,8 @@ export const DEFAULT_LANGUAGE = 'en';
 // The ₺ | € switch only appears when at least one item has a price_eur.
 export const CURRENCIES = { try: '₺', eur: '€' };
 export const DEFAULT_CURRENCY = 'try';
+// Offer the ₺ | € switch at all? false = everyone sees lira, even where a price_eur is filled in.
+export const SHOW_CURRENCY_SWITCH = false;
 export const CURRENCY_KEY = 'sabor-currency-v1';
 
 // Show the item number in front of each name ("30. SPAGHETTI BOLOGNESE")?

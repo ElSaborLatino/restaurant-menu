@@ -1,5 +1,5 @@
 import {
-  TABS, LANGUAGES, DEFAULT_LANGUAGE, CURRENCIES, DEFAULT_CURRENCY, CURRENCY_KEY, SHOW_ITEM_NUMBERS, BANNER, SNAPSHOT_URL, CACHE_KEY, tabUrl,
+  TABS, LANGUAGES, DEFAULT_LANGUAGE, CURRENCIES, DEFAULT_CURRENCY, CURRENCY_KEY, SHOW_CURRENCY_SWITCH, SHOW_ITEM_NUMBERS, BANNER, SNAPSHOT_URL, CACHE_KEY, tabUrl,
 } from './config.js';
 import { buildMenu, pick } from './menu.js';
 
@@ -7,6 +7,7 @@ const FETCH_TIMEOUT_MS = 8000;
 const HEADER_OFFSET = 135;
 
 const readCurrency = () => {
+  if (!SHOW_CURRENCY_SWITCH) return DEFAULT_CURRENCY;
   try {
     const saved = localStorage.getItem(CURRENCY_KEY);
     return saved in CURRENCIES ? saved : DEFAULT_CURRENCY;
@@ -102,7 +103,7 @@ function priceText(item) {
 }
 
 function drawCurrencyToggle() {
-  currencyEl.hidden = !state.menu.some(c => c.items.some(i => i.priceEur !== null));
+  currencyEl.hidden = !SHOW_CURRENCY_SWITCH || !state.menu.some(c => c.items.some(i => i.priceEur !== null));
   currencyEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.currency === state.currency)));
 }
 
